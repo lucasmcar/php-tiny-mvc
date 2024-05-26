@@ -14,6 +14,8 @@ class Router  implements IRouter
     private $route;
     private $globalMiddleware = [];
     private $routeMiddleware = [];
+    private $path;
+    private $method;
 
     public function __construct(IRoute $route)
     {
@@ -87,6 +89,13 @@ class Router  implements IRouter
         } else {
             http_response_code(404);
         }
+    }
+
+    public function run()
+    {
+        $this->method = $_SERVER['REQUEST_METHOD'];
+        $this->path = $_SERVER['REQUEST_URI'];
+        $this->route($this->method, $this->path);
     }
 
 

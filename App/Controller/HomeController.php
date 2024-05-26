@@ -54,13 +54,17 @@ class HomeController extends Controller
         return new View('list',$data);
     }
 
-    public function showPost($id, $postId = null, $commentId = null)
+    public function showPost($id, $postId = null, $c = null, $commentId = null)
     {
         echo "Exibindo informações do usuário com ID: " . htmlspecialchars($id);
-        if ($postId) {
-            echo " e o post com ID: " . htmlspecialchars($postId) . "e comentario $commentId";
+
+        if ($postId && !$c && !$commentId) {
+            echo " e o post com ID: " . htmlspecialchars($postId) . "";
             // Aqui você pode adicionar a lógica para buscar o post no banco de dados
-        } else {
+        } else if($c && $commentId){
+            echo " e o post com ID: " . htmlspecialchars($postId) . " e comentario $commentId";
+        } 
+        else {
             echo " e todos os posts.";
             // Aqui você pode adicionar a lógica para buscar todos os posts do usuário no banco de dados
         }

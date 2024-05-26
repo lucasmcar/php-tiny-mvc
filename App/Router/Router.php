@@ -4,8 +4,121 @@ namespace App\Router;
 
 
 use App\Router\Interface\IRouter;
+use App\Router\Interface\IRoute;
 
-class Router implements IRouter
+class Router  implements IRouter 
+{
+    private $routes = [];
+    private $notFoundCallback;
+    private $prefix = '';
+    private $route;
+    private $globalMiddleware = [];
+    private $routeMiddleware = [];
+
+    public function __construct(IRoute $route)
+    {
+        $this->route = $route;
+    }
+
+    public function get($path, $controller, $action = '' , $middleware = [])
+    {
+        $this->addRoute('GET', $path, $controller, $action, $middleware);
+    }
+
+    public function post($path, $controller, $action = '', $middleware = [])
+    {
+        $this->addRoute('POST', $path, $controller, $action, $middleware);
+    }
+
+    public function put($path, $controller, $action = '', $middleware = [])
+    {
+        $this->addRoute('PUT', $path, $controller, $action, $middleware);
+    }
+
+    public function delete($path, $controller, $action = '', $middleware = [])
+    {
+        $this->addRoute('DELETE', $path, $controller, $action, $middleware);
+    }
+
+    public function group($prefix, $callback)
+    {
+        $previousPrefix = $this->prefix;
+        $this->prefix .= $prefix;
+
+        call_user_func($callback, $this);
+
+        $this->prefix = $previousPrefix;
+    }
+
+    private function addRoute($method, $path, $controller, $action = '', $middleware = [])
+    {
+        $route = $this->route->add($method, $this->prefix . urldecode($path), $controller, $action);
+        /*$this->routes[] = $route;*/
+        $this->routes[] = [
+            'route' => $route,
+            'middleware' => array_merge($this->globalMiddleware, $middleware)
+        ];
+
+    }
+
+     // Método para definir middleware global
+     public function use($middleware)
+     {
+         $this->globalMiddleware[] = $middleware;
+     }
+
+    public function route($method, $path)
+    {
+        $path = urldecode($path);
+        foreach ($this->routes as $route) {
+            $match = $route['route']->match($method, $path);
+            if ($match) {
+                $this->executeMiddleware($route['middleware'], function () use ($match) {
+                    $controllerClass = "App\\Controller\\" . ucfirst($match['controller']);
+                    $controller = new $controllerClass();
+                    call_user_func_array([$controller, $match['action']], $match['params']);
+                });
+                return;
+            }
+        }
+
+        if ($this->notFoundCallback) {
+            call_user_func($this->notFoundCallback);
+        } else {
+            http_response_code(404);
+        }
+    }
+
+
+    private function executeMiddleware($middleware, $next)
+    {
+        $stack = array_reverse($middleware);
+        $nextMiddleware = $next;
+
+        foreach ($stack as $layer) {
+            $currentMiddleware = new $layer();
+            $nextMiddleware = function ($request) use ($currentMiddleware, $nextMiddleware) {
+                return $currentMiddleware->handle($request, $nextMiddleware);
+            };
+        }
+
+        return $nextMiddleware([]);
+    }
+
+
+
+    public function notFound($callback)
+    {
+        $this->notFoundCallback = $callback;
+    }
+}
+
+
+
+
+
+
+/*class Router implements IRouter
 {
 
     private $routes = [];
@@ -37,6 +150,19 @@ class Router implements IRouter
         $this->addRoute('DELETE', $path, $controller, $action);
     }
 
+     // Método para agrupar rotas
+     public function group($prefix, $callback) 
+     {
+         $previousPrefix = $this->prefix;
+         $this->prefix .= $prefix;
+ 
+         // Chama o callback para definir as rotas dentro do grupo
+         call_user_func($callback, $this);
+ 
+         // Restaura o prefixo anterior
+         $this->prefix = $previousPrefix;
+     }
+
     // Método interno para adicionar uma rota
     private function addRoute(string $method, string $path, string $controller, string $action = '') {
         if($action == ''){
@@ -62,31 +188,32 @@ class Router implements IRouter
     public function route($method, $path) 
     {
 
-        $filtro = null;
         $path = urldecode($path);
         foreach ($this->routes as $route) {
+            if ($route['method'] === $method) {
+                $routePath = $route['path'];
 
-            
-            //faz contagem das barras na url
-            if(substr_count($path, "/")> 2 && substr_count($route['path'], "/")> 2){
+                $routePattern = preg_replace('/\{(\w+)\?\}/', '(\w+)?', str_replace('/', '\/', $routePath));
+                $routePattern = preg_replace('/\{(\w+)\}/', '(\w+)', $routePattern);
+                $routePattern = '/^' . $routePattern . '$/';
 
-                $part = explode("/", $path);
-                $pathRequest = explode("/", $route['path']);
-                if($part[1] == $pathRequest[1]){
-                    $pathRequest[3] = $part[3];
-                    $filtro = $pathRequest[3];
-                    $path = $route['path'] = implode("/", $pathRequest);
+                if (preg_match($routePattern, $path, $matches)) {
+                    array_shift($matches); // Remove o primeiro item, que é a URL completa
+
+                    $params = [];
+                    preg_match_all('/\{(\w+)\?\}|\{(\w+)\}/', $routePath, $paramNames);
+                    if (isset($paramNames[0])) {
+                        foreach ($paramNames[0] as $index => $paramName) {
+                            $params[] = $matches[$index] ?? null;
+                        }
+                    }
+
+                    $class = "App\\Controller\\" . ucfirst($route['controller']);
+                    $action = $route['action'];
+                    $controller = new $class();
+                    call_user_func_array([$controller, $action], $params);
+                    return;
                 }
-                
-            }
-           
-            if ($route['method'] === $method && $route['path'] === $path) {
-                $class = "App\\Controller\\".ucfirst($route['controller']);
-                $action = $route['action'];
-                // Instancia o controlador e chama a ação
-                $controller = new $class();
-                $controller->$action($filtro);
-                return;
             }
         }
 
@@ -107,4 +234,4 @@ class Router implements IRouter
     {
         return $this->notFoundCallback = $callBack;
     }
-}
+}*/

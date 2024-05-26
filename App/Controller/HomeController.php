@@ -4,8 +4,7 @@ namespace App\Controller;
 
 use App\Core\Security\Csrf;
 use App\Core\View\View;
-use App\Core\Http\Request;
-use App\Core\Http\Response;
+
 
 class HomeController extends Controller
 {
@@ -53,6 +52,29 @@ class HomeController extends Controller
         ];
         
         return new View('list',$data);
+    }
+
+    public function showPost($id, $postId = null, $commentId = null)
+    {
+        echo "Exibindo informações do usuário com ID: " . htmlspecialchars($id);
+        if ($postId) {
+            echo " e o post com ID: " . htmlspecialchars($postId) . "e comentario $commentId";
+            // Aqui você pode adicionar a lógica para buscar o post no banco de dados
+        } else {
+            echo " e todos os posts.";
+            // Aqui você pode adicionar a lógica para buscar todos os posts do usuário no banco de dados
+        }
+    }
+
+    public function teste($id)
+    {
+        echo "Exibindo informações do usuário com ID: " . htmlspecialchars($id);
+    }
+
+    public function settings()
+    {
+        $data = ['key' => 'Caiu no settings'];
+        return new View('settings', $data);
     }
 
     public function submit()

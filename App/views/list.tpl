@@ -25,7 +25,7 @@
 <select>
     <option value="">Selecione</option>
     {% foreach $itens as $key => $value %}
-    <option value="{{ $value['id'] }}">{{ $value['data'] }}</option>
+    <option value="{{ $value['id'] }}">{{ $value['nome'] }}</option>
     {% endforeach; %}
 </select>
 </div>

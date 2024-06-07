@@ -16,7 +16,7 @@ $routeFactory = new Route();
 $router = new Router($routeFactory);
 
 include '../routes/web.php';
+include '../routes/api.php';
 
-//entry point da aplicaçao
 $router->run();
 

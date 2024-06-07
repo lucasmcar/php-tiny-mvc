@@ -14,6 +14,7 @@ class Router  implements IRouter
     private $route;
     private $globalMiddleware = [];
     private $routeMiddleware = [];
+    private $groupMiddleware = [];
     private $path;
     private $method;
 
@@ -42,14 +43,24 @@ class Router  implements IRouter
         $this->addRoute('DELETE', $path, $controller, $action, $middleware);
     }
 
-    public function group($prefix, $callback)
+    public function group($prefix, $callback, $middleware = [])
     {
         $previousPrefix = $this->prefix;
+        $previousGroupMiddleware = $this->groupMiddleware;
+        
         $this->prefix .= $prefix;
+        $this->groupMiddleware = array_merge($this->groupMiddleware, $middleware);
 
         call_user_func($callback, $this);
 
         $this->prefix = $previousPrefix;
+        $this->groupMiddleware = $previousGroupMiddleware;
+        /*$previousPrefix = $this->prefix;
+        $this->prefix .= $prefix;
+
+        call_user_func($callback, $this);
+
+        $this->prefix = $previousPrefix;*/
     }
 
     private function addRoute($method, $path, $controller, $action = '', $middleware = [])
@@ -58,7 +69,7 @@ class Router  implements IRouter
         /*$this->routes[] = $route;*/
         $this->routes[] = [
             'route' => $route,
-            'middleware' => array_merge($this->globalMiddleware, $middleware)
+            'middleware' => array_merge($this->globalMiddleware, $this->groupMiddleware, $middleware)
         ];
 
     }
@@ -121,126 +132,3 @@ class Router  implements IRouter
         $this->notFoundCallback = $callback;
     }
 }
-
-
-
-
-
-
-/*class Router implements IRouter
-{
-
-    private $routes = [];
-    private $notFoundCallback;
-    private $prefix = '';
-   
-    
-    // Adiciona uma rota para o método GET
-    public function get($path, $controller, $action = '') 
-    {
-        $this->addRoute('GET', urldecode($path), $controller, $action);
-    }
-    
-    // Adiciona uma rota para o método POST
-    public function post($path, $controller, $action = '') 
-    {
-        $this->addRoute('POST', $path, $controller, $action);
-    }
-    
-        // Adiciona uma rota para o método PUT
-    public function put($path, $controller, $action = '') 
-    {
-        $this->addRoute('PUT', $path, $controller, $action);
-    }
-    
-    // Adiciona uma rota para o método DELETE
-    public function delete($path, $controller, $action = '') 
-    {
-        $this->addRoute('DELETE', $path, $controller, $action);
-    }
-
-     // Método para agrupar rotas
-     public function group($prefix, $callback) 
-     {
-         $previousPrefix = $this->prefix;
-         $this->prefix .= $prefix;
- 
-         // Chama o callback para definir as rotas dentro do grupo
-         call_user_func($callback, $this);
- 
-         // Restaura o prefixo anterior
-         $this->prefix = $previousPrefix;
-     }
-
-    // Método interno para adicionar uma rota
-    private function addRoute(string $method, string $path, string $controller, string $action = '') {
-        if($action == ''){
-            $controller = explode("@", $controller);
-            $this->routes[] = [
-                'method' => $method,
-                'path' => $this->prefix. urldecode($path),
-                'controller' => $controller[0],
-                'action' => $controller[1]
-            ];
-            return;
-        } 
-        $this->routes[] = [
-            'method' => $method,
-            'path' =>  urldecode($path),
-            'controller' => $controller,
-            'action' => $action
-        ];
-        return;
-    }
-    
-    // Encontra e chama a ação correta para a rota especificada
-    public function route($method, $path) 
-    {
-
-        $path = urldecode($path);
-        foreach ($this->routes as $route) {
-            if ($route['method'] === $method) {
-                $routePath = $route['path'];
-
-                $routePattern = preg_replace('/\{(\w+)\?\}/', '(\w+)?', str_replace('/', '\/', $routePath));
-                $routePattern = preg_replace('/\{(\w+)\}/', '(\w+)', $routePattern);
-                $routePattern = '/^' . $routePattern . '$/';
-
-                if (preg_match($routePattern, $path, $matches)) {
-                    array_shift($matches); // Remove o primeiro item, que é a URL completa
-
-                    $params = [];
-                    preg_match_all('/\{(\w+)\?\}|\{(\w+)\}/', $routePath, $paramNames);
-                    if (isset($paramNames[0])) {
-                        foreach ($paramNames[0] as $index => $paramName) {
-                            $params[] = $matches[$index] ?? null;
-                        }
-                    }
-
-                    $class = "App\\Controller\\" . ucfirst($route['controller']);
-                    $action = $route['action'];
-                    $controller = new $class();
-                    call_user_func_array([$controller, $action], $params);
-                    return;
-                }
-            }
-        }
-
-        if($this->notFoundCallback){
-            call_user_func($this->notFoundCallback);
-        } else {
-            http_response_code(404);
-        }
-    }
-
-    private function convertPathToRegex($path)
-    {
-        // Convert route path to regex
-        return '/^' . preg_replace('/\{(\w+)\}/', '(\w+)', str_replace('/', '\/', $path)) . '$/';
-    }
-
-    public function notFound($callBack)
-    {
-        return $this->notFoundCallback = $callBack;
-    }
-}*/

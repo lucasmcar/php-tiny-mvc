@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Core\Security\Csrf;
 use App\Core\View\View;
-
+use App\Repository\TesteRepository;
 
 class HomeController extends Controller
 {
@@ -17,6 +17,7 @@ class HomeController extends Controller
             'data' => ['empty', 'data']
 
         ];
+        
         return new View('welcome', $data);
     }
     public function index() 
@@ -29,12 +30,20 @@ class HomeController extends Controller
             'data' => ['empty', 'data']
 
         ];
+        
         return new View('index', $data);
     }
 
     public function list() 
     {
+        $model = new TesteRepository();
+        $array = $model->getTest();
+        
         $data = [
+            /**
+             * Para passar dados para tela, criar um array associativo
+             * os dados que serão listas devem ter o formato como na posição dados
+             */
             'title' => 'Teste',
             'dados' => [
                 ['id' => 1, 'data' => 'empty', 'datas' => 'data', 'dates' =>'12/12/2020'],
@@ -43,13 +52,17 @@ class HomeController extends Controller
                 
             ],
 
-            'itens' => [
-                ['id' => 1,'data' => 'empty', 'datas' => 'data', 'dates' =>'12/12/2020'],
-                ['id' => 2,'data' => 'full', 'datas' =>'null', 'dates' =>  '12/10/2020'],
-                ['id' => 3,'data' => 'semi-full', 'datas' =>'null', 'dates' =>  '12/10/2020'],
+            'itens' =>[$array][0]
+            
                 
-            ]
+                /*['id' => 1,'data' => 'empty', 'datas' => 'data', 'dates' =>'12/12/2020'],
+                ['id' => 2,'data' => 'full', 'datas' =>'null', 'dates' =>  '12/10/2020'],
+                ['id' => 3,'data' => 'semi-full', 'datas' =>'null', 'dates' =>  '12/10/2020'],*/
+                
+            
         ];
+
+        
         
         return new View('list',$data);
     }
@@ -77,7 +90,9 @@ class HomeController extends Controller
 
     public function settings()
     {
-        $data = ['key' => 'Caiu no settings'];
+        $data = [
+            'title' => 'Configurações',
+            'key' => 'Caiu no settings'];
         return new View('settings', $data);
     }
 

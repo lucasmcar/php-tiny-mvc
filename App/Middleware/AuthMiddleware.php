@@ -16,7 +16,7 @@ class AuthMiddleware implements IMiddleware
         }
         // Implement your authentication logic here
         // For example, check if the user is authenticated
-        if (!isset($_SESSION['_csrf_token'])) {
+        if (!isset($_SESSION['user'])) {
             http_response_code(401);
             echo "Unauthorized";
             return;

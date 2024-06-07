@@ -2,8 +2,6 @@
 
 namespace App\Core\View\Registers;
 
-use App\Core\Security\Csrf;
-
 class Register
 {
     protected static $patterns = [

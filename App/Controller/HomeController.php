@@ -40,10 +40,7 @@ class HomeController extends Controller
         $array = $model->getTest();
         
         $data = [
-            /**
-             * Para passar dados para tela, criar um array associativo
-             * os dados que serão listas devem ter o formato como na posição dados
-             */
+            
             'title' => 'Teste',
             'dados' => [
                 ['id' => 1, 'data' => 'empty', 'datas' => 'data', 'dates' =>'12/12/2020'],
@@ -73,13 +70,13 @@ class HomeController extends Controller
 
         if ($postId && !$c && !$commentId) {
             echo " e o post com ID: " . htmlspecialchars($postId) . "";
-            // Aqui você pode adicionar a lógica para buscar o post no banco de dados
+            
         } else if($c && $commentId){
             echo " e o post com ID: " . htmlspecialchars($postId) . " e comentario $commentId";
         } 
         else {
             echo " e todos os posts.";
-            // Aqui você pode adicionar a lógica para buscar todos os posts do usuário no banco de dados
+           
         }
     }
 

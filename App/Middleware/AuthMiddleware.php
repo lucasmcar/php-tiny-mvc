@@ -14,8 +14,7 @@ class AuthMiddleware implements IMiddleware
             session_start();
 
         }
-        // Implement your authentication logic here
-        // For example, check if the user is authenticated
+
         if (!isset($_SESSION['user'])) {
             http_response_code(401);
             echo "Unauthorized";

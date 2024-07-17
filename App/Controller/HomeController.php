@@ -17,5 +17,4 @@ class HomeController extends Controller
         
         return new View('welcome', $data);
     }
-    
 }

@@ -18,14 +18,14 @@ class DotEnvUtil
                 continue;
             }
     
-            // Divide a linha em nome e valor, ignorando a linha se não for válida
+            // Divides the row in name and value, ignoring the row if is not valid
             if (strpos($line, '=') === false) {
                 continue;
             }
 
             list($name, $value) = explode("=", $line, 2);
 
-            // Remove espaços em branco extras ao redor do nome e do valor
+            // Remove the extras white spaces around the name and value
             $name = trim($name);
             $value = trim($value);
 

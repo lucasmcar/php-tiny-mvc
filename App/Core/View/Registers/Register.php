@@ -2,6 +2,9 @@
 
 namespace App\Core\View\Registers;
 
+/**
+ * This class is
+ */
 class Register
 {
     protected static $patterns = [

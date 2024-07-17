@@ -74,7 +74,9 @@ class Router  implements IRouter
 
     }
 
-     // Método para definir middleware global
+     /**
+      * Method to define the global middleware
+      */
      public function use($middleware)
      {
          $this->globalMiddleware[] = $middleware;

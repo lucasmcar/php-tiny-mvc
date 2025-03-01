@@ -11,8 +11,10 @@ class View
     
     private $vars = [];
     private $layout;
+    private $styles = [];
+    private $scripts = [];
 
-    public function __construct(string $view, array $vars, $layout = 'layout')
+    public function __construct(string $view, array $vars,  array $styles = [], array $scripts = [], $layout = 'layout')
     {
         $this->setLayout($layout);
         $this->vars['csrf_token'] = Csrf::generateToken();
@@ -20,6 +22,11 @@ class View
            $this->assignArray($name, $value);
             
         }
+
+        // Adiciona estilos e scripts específicos da página
+        $this->styles = $styles;
+        $this->scripts = $scripts;
+
         $this->render($view);
     }
 
@@ -46,6 +53,8 @@ class View
         if (!file_exists($templatePath)) {
             throw new \Exception("Template $templatePath not found!");
         }
+        // Carregar arquivos de estilos e scripts específicos da página
+        
 
         extract($this->vars);
 
@@ -60,10 +69,15 @@ class View
             if (!file_exists($layoutPath)) {
                 throw new \Exception("Layout $layoutPath not found!");
             }
+
+            $styles = $this->generateStyles();
+            $scripts = $this->generateScripts();
     
             // Include the content in the layout
              // Replace the {{ $content }} placeholder with the actual content
             $layoutContent = file_get_contents($layoutPath);
+            $layoutContent = str_replace('{{ $styles }}', $styles, $layoutContent);
+            $layoutContent = str_replace('{{ $scripts }}', $scripts, $layoutContent);
             $layoutContent = str_replace('{{ $content }}', $content, $layoutContent);
             $content = $layoutContent;
         
@@ -85,6 +99,10 @@ class View
 
     private function renderContent($content, $vars)
     {
+
+        $vars['styles'] = $this->generateStyles();  
+        $vars['scripts'] = $this->generateScripts();
+        
         extract($vars);
 
         $tempFile = tempnam(sys_get_temp_dir(), 'php');
@@ -94,5 +112,23 @@ class View
         include $tempFile;
         //unlink($tempFile);
         return ob_get_clean();
+    }
+
+    private function generateStyles()
+    {
+        $output = "";
+        foreach ($this->styles as $style) {
+            $output .= "<link rel='stylesheet' href='$style'>\n";
+        }
+        return $output;
+    }
+
+    private function generateScripts()
+    {
+        $output = "";
+        foreach ($this->scripts as $script) {
+            $output .= "<script src='$script'></script>\n";
+        }
+        return $output;
     }
 }

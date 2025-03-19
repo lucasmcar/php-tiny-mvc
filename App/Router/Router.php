@@ -85,13 +85,22 @@ class Router  implements IRouter
     public function route($method, $path)
     {
         $path = urldecode($path);
+
+        // Logar todas as rotas registradas
+        foreach ($this->routes as $idx => $route) {
+            $routePath = $route['route']->getPath(); // Adicione este método em Route se necessário
+            error_log("Rota registrada [{$idx}]: Método: {$route['route']->getMethod()} | Caminho: {$routePath}");
+        }
+
+
         foreach ($this->routes as $route) {
             $match = $route['route']->match($method, $path);
+            
             if ($match) {
                 $this->executeMiddleware($route['middleware'], function () use ($match) {
                     $controllerClass = "App\\Controller\\" . ucfirst($match['controller']);
                     $controller = new $controllerClass();
-                    call_user_func_array([$controller, $match['action']], $match['params']);
+                    call_user_func([$controller, $match['action']], $match['params']);
                 });
                 return;
             }
@@ -108,6 +117,23 @@ class Router  implements IRouter
     {
         $this->method = $_SERVER['REQUEST_METHOD'];
         $this->path = $_SERVER['REQUEST_URI'];
+
+        $scriptName = $_SERVER['SCRIPT_NAME'];
+        $basePath = dirname($scriptName);
+
+        if ($basePath === '/' || $basePath === '\\') {
+            $basePath = ''; // Raiz do servidor
+        }
+    
+        // Remover o caminho base do REQUEST_URI
+        if ($basePath && strpos($this->path, $basePath) === 0) {
+            $this->path = substr($this->path, strlen($basePath));
+        }
+    
+        // Garantir que o caminho comece com /
+        if (empty($this->path) || $this->path[0] !== '/') {
+            $this->path = '/' . ltrim($this->path, '/');
+        }
         $this->route($this->method, $this->path);
     }
 

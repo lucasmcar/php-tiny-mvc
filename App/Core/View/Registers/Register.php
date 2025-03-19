@@ -25,7 +25,11 @@ class Register
         '/\@css\(\s*(.+?)\s*\)/',
         '/@js\(\s*["\'](.+?)["\']\s*\)/',                // Include JS
         '/@csrf/', 
-        '/\{\%\s*year\s*\%\}/' //Current Year                                        
+        '/\{\%\s*year\s*\%\}/',                           //Current Year
+        
+        //New foreach statement
+        '/\@each\(\s*([\w\d_]+)\s+has\s+([\w\d_]+)(?:\s*=>\s*([\w\d_]+))?\s+like\s+([\w\d_]+)\s*\)/',
+        '/\@endeach/'
     ];
 
     protected static $replacements = [
@@ -47,6 +51,10 @@ class Register
         '<script src="$1"></script>',
         '<input type="hidden" name="_csrf_token" value="<?php echo $this->vars["csrf_token"]; ?>">',
         '<?php echo date("Y"); ?>',
+
+        //New foreach statement
+        '<?php foreach ($1 as $2 => $3): ?>',
+        '<?php endforeach; ?>',
          
     ];
 

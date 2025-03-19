@@ -8,7 +8,8 @@
             "App\\": "App/"
         },
         "files": [
-            "consts/jwt-token.php"
+            "consts/jwt-token.php",
+            "config/assets.php"
         ]
     },
     "authors": [

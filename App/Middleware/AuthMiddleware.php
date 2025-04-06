@@ -1,30 +1,44 @@
 <?php
-
 namespace App\Middleware;
 
-use App\Router\Interface\IMiddleware;
+use App\Core\Security\Jwt\JwtHandler;
 use App\Core\Security\Csrf;
 
-class AuthMiddleware implements IMiddleware
+class AuthMiddleware
 {
     public function handle($request, $next)
     {
-
-        if(!session_id()){
+        // Inicia a sessão se não estiver ativa
+        if (!session_id()) {
             session_start();
-
         }
 
-        if (!isset($_SESSION['user'])) {
+        // Pega o token da sessão
+        $jwt = $_SESSION['jwt'] ?? null;
+
+        if (!$jwt) {
             http_response_code(401);
-            echo "Unauthorized";
-            return;
+            header('Location: /admin/login');
+            exit;
         }
 
+        // Valida o token usando JwtHandler
+        $decoded = JwtHandler::validateToken($jwt);
+        if ($decoded === null) {
+            http_response_code(401);
+            echo "Unauthorized - Invalid or expired token";
+            // Opcional: Limpa a sessão se o token expirar
+            unset($_SESSION['jwt']);
+            header('Location: /admin/login');
+        }
 
-        // Verifica o token CSRF para requisições POST, PUT e DELETE
+        // Adiciona os dados do usuário ao request
+        $request['user'] = $decoded;
+
+        // Verifica CSRF para métodos POST, PUT, DELETE
         if (in_array($_SERVER['REQUEST_METHOD'], ['POST', 'PUT', 'DELETE'])) {
-            $csrfToken = $_POST['_csrf_token'] ?? '';
+            $headers = getallheaders();
+    $csrfToken = $headers['X-CSRF-TOKEN'] ?? '';
             if (!Csrf::verifyToken($csrfToken)) {
                 http_response_code(403);
                 echo "Forbidden - Invalid CSRF token";

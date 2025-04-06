@@ -2,6 +2,7 @@
 
 namespace App\Core\View;
 
+
 use App\Core\Security\Csrf;
 use App\Core\View\Registers\Register;
 
@@ -83,7 +84,6 @@ class View
         
         }
         $parsedContent = $this->parse($content);
-    
         // Render the parsed content within a safe context
         echo $this->renderContent($parsedContent, $this->vars);
     }
@@ -102,7 +102,7 @@ class View
 
         $vars['styles'] = $this->generateStyles();  
         $vars['scripts'] = $this->generateScripts();
-        
+
         extract($vars);
 
         $tempFile = tempnam(sys_get_temp_dir(), 'php');
@@ -118,7 +118,7 @@ class View
     {
         $output = "";
         foreach ($this->styles as $style) {
-            $output .= "<link rel='stylesheet' href='$style'>\n";
+            $output .= "<link rel='stylesheet' href='" . \base_url($style) . "'>\n";
         }
         return $output;
     }
@@ -127,7 +127,7 @@ class View
     {
         $output = "";
         foreach ($this->scripts as $script) {
-            $output .= "<script src='$script'></script>\n";
+            $output .= "<script defer src='" . \base_url($script) . "'></script>\n";
         }
         return $output;
     }

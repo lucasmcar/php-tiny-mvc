@@ -15,6 +15,7 @@ class Router  implements IRouter
     private $globalMiddleware = [];
     private $routeMiddleware = [];
     private $groupMiddleware = [];
+    private $domain;
     private $path;
     private $method;
 
@@ -23,24 +24,24 @@ class Router  implements IRouter
         $this->route = $route;
     }
 
-    public function get($path, $controller, $action = '' , $middleware = [])
+    public function get($path, $controller, $action = '' , $middleware = [], $domain = null)
     {
-        $this->addRoute('GET', $path, $controller, $action, $middleware);
+        $this->addRoute('GET', $path, $controller, $action, $middleware, $domain);
     }
 
-    public function post($path, $controller, $action = '', $middleware = [])
+    public function post($path, $controller, $action = '', $middleware = [], $domain = null)
     {
-        $this->addRoute('POST', $path, $controller, $action, $middleware);
+        $this->addRoute('POST', $path, $controller, $action, $middleware, $domain);
     }
 
-    public function put($path, $controller, $action = '', $middleware = [])
+    public function put($path, $controller, $action = '', $middleware = [], $domain = null)
     {
-        $this->addRoute('PUT', $path, $controller, $action, $middleware);
+        $this->addRoute('PUT', $path, $controller, $action, $middleware, $domain);
     }
 
-    public function delete($path, $controller, $action = '', $middleware = [])
+    public function delete($path, $controller, $action = '', $middleware = [], $domain = null)
     {
-        $this->addRoute('DELETE', $path, $controller, $action, $middleware);
+        $this->addRoute('DELETE', $path, $controller, $action, $middleware, $domain);
     }
 
     public function group($prefix, $callback, $middleware = [])
@@ -63,10 +64,30 @@ class Router  implements IRouter
         $this->prefix = $previousPrefix;*/
     }
 
-    private function addRoute($method, $path, $controller, $action = '', $middleware = [])
+    public function domain($domain, $callback, $middleware = [])
+{
+    $previousPrefix = $this->prefix;
+    $previousGroupMiddleware = $this->groupMiddleware;
+    $previousDomain = $this->domain ?? null;
+
+    $this->domain = $domain; // Novo domínio atual
+    $this->groupMiddleware = array_merge($this->groupMiddleware, $middleware);
+
+    call_user_func($callback, $this);
+
+    $this->prefix = $previousPrefix;
+    $this->groupMiddleware = $previousGroupMiddleware;
+    $this->domain = $previousDomain;
+}
+
+
+    private function addRoute($method, $path, $controller, $action = '', $middleware = [], $domain = null)
     {
+
+        $domain = $domain ?? $this->domain; // usa o domínio do grupo se não for passado direto
         $route = $this->route->add($method, $this->prefix . urldecode($path), $controller, $action);
         /*$this->routes[] = $route;*/
+        $route->setDomain($domain);
         $this->routes[] = [
             'route' => $route,
             'middleware' => array_merge($this->globalMiddleware, $this->groupMiddleware, $middleware)
@@ -85,19 +106,23 @@ class Router  implements IRouter
     public function route($method, $path)
     {
         $path = urldecode($path);
-
-        // Logar todas as rotas registradas
-        foreach ($this->routes as $idx => $route) {
-            $routePath = $route['route']->getPath(); // Adicione este método em Route se necessário
-            error_log("Rota registrada [{$idx}]: Método: {$route['route']->getMethod()} | Caminho: {$routePath}");
-        }
+        $currentDomain = $_SERVER['HTTP_HOST'];
 
 
-        foreach ($this->routes as $route) {
-            $match = $route['route']->match($method, $path);
+        foreach ($this->routes as $idx => $routeEntry) {
+            $routeObj = $routeEntry['route'];
+            $routeDomain = $routeObj->getDomain();
+
+            
+            // Se existe um domínio definido, precisa bater com o domínio atual
+            if ($routeDomain !== null && $routeDomain !== $currentDomain) {
+                continue;
+            }
+
+            $match = $routeObj->match($method, $path);
             
             if ($match) {
-                $this->executeMiddleware($route['middleware'], function () use ($match) {
+                $this->executeMiddleware($routeEntry['middleware'], function () use ($match) {
                     $controllerClass = "App\\Controller\\" . ucfirst($match['controller']);
                     $controller = new $controllerClass();
                     call_user_func([$controller, $match['action']], $match['params']);

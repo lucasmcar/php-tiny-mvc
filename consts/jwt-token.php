@@ -2,6 +2,7 @@
 
 use App\Utils\DotEnvUtil;
 
-DotEnvUtil::loadEnv('../.env');
+
+DotEnvUtil::loadEnv(realpath(__DIR__.'/../.env'));
 
 define('JWT_TOKEN', $_ENV['JWT_TOKEN']);

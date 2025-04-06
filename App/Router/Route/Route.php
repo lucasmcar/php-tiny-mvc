@@ -10,6 +10,7 @@ class Route implements IRoute
     private $path;
     private $controller;
     private $action;
+    private $domain;
 
     public function __construct($method = '', $path = '', $controller = '', $action = '')
     {
@@ -59,5 +60,15 @@ class Route implements IRoute
         public function getMethod()
         {
             return $this->method;
+        }
+
+        public function setDomain($domain)
+        {
+            $this->domain = $domain;
+        }
+
+        public function getDomain()
+        {
+            return $this->domain;
         }
 }

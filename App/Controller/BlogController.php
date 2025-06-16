@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Core\View\View;
+use Core\View\View;
 
 class BlogController
 {
@@ -25,12 +25,12 @@ class BlogController
         ];
 
         $styles = [
-            '/assets/css/posts.css'
+            '/assets/css/posts.min.css'
         ];
 
         $scripts = [
-        '/assets/js/main-admin.js',
-            '/assets/js/posts.js'
+        '/assets/js/main-admin.min.js',
+            '/assets/js/posts.min.js'
         ];
 
         if ($_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
@@ -157,11 +157,11 @@ class BlogController
         ];
 
         $styles = [
-            '/assets/css/admin/blog.css'
+            '/assets/css/admin/blog.min.css'
         ];
 
         $scripts =[
-            '/assets/js/tiny-init.js'
+            '/assets/js/ckeditor5/ckeditor5.js'
         ];
 
         if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
@@ -189,7 +189,7 @@ class BlogController
             
         ];
 
-        $styles =['/assets/css/artigo.css'];
+        $styles =['/assets/css/artigo.min.css'];
         // Verificar se o artigo existe
         //if ($article['created_at'] === $createdAt && $article['slug'] === $slug) {
             return new View('site/artigo',  $data, $styles, [], 'layout');

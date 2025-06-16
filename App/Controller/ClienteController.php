@@ -3,7 +3,7 @@
 
 namespace App\Controller;
 
-use App\Core\View\View;
+use Core\View\View;
 
 
 class ClienteController
@@ -15,10 +15,10 @@ class ClienteController
         ];
 
         $styles = [
-            '/assets/css/admin/clientes.css'
+            '/assets/css/admin/clientes.min.css'
         ];
         $scripts = [
-            '/assets/js/clientes.js'
+            '/assets/js/clientes.min.js'
         ];
 
         return new View(view: 'admin/clientes', vars: $data, styles: $styles, scripts: $scripts, layout: 'admin-layout');

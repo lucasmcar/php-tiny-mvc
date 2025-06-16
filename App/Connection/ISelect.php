@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Connection;
+
 interface ISelect
 {
     public function select(string ...$fields);

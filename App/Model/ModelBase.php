@@ -12,6 +12,7 @@ class ModelBase
     private $conditions = [];
     private $bindings = [];
     private $joins = [];
+    private $alias;
 
     public function __construct()
     {
@@ -38,6 +39,11 @@ class ModelBase
         return $this->connect()->one();
     }
 
+    public function lastInsertId(): int
+    {
+        return $this->connect()->lastInsertId();
+    }
+
     public function findForSign($email): array
     {
         $sql = "SELECT * FROM {$this->table} WHERE email = :email LIMIT 1";
@@ -53,7 +59,12 @@ class ModelBase
         $sql = "INSERT INTO {$this->table} ({$fields}) VALUES ({$values})";
         $this->connect()->prepare($sql);
         foreach ($this->fillable as $field) {
-            $this->connect()->bind(":$field", $data[$field]);
+            if(!isset($data[$field])){
+                $data[$field] = null;
+            }
+            if(isset($data[$field])){
+                $this->connect()->bind(":$field", $data[$field]);
+            }
         }
         $this->connect()->execute();
         return $this->connect()->lastInsertId();
@@ -119,14 +130,32 @@ class ModelBase
         return $this;
     }
 
+    public function andWhere($column, $operator, $value)
+    {
+        $paramName = ":param_" . count($this->bindings); // Gera um nome único para o binding
+        $column = "LOWER($column)"; // Adiciona LOWER para tornar a comparação insensível a maiúsculas/minúsculas
+        $value = strtolower($value); // Garante que o valor também seja convertido para minúsculas
+        $this->conditions[] = ['AND', "$column $operator $paramName"];
+        $this->bindings[$paramName] = $value;
+        return $this;
+    }
+
     // Executa a consulta com as condições
-    public function get()
+    public function get(array $fields = [])
     {
         if (empty($this->conditions) && empty($this->joins)) {
             return $this->all();
         }
 
-        $sql = "SELECT * FROM {$this->table} ";
+        $sql = '';
+
+        $alias = $this->alias ? " as {$this->alias}" : '';
+        if(!empty($fields)){
+            $sql = "SELECT ". implode(', ', $fields) ." FROM {$this->table} {$this->alias} "; 
+        } else {
+            $sql = "SELECT * FROM {$this->table} {$this->alias} "; 
+        }
+        
 
         if (!empty($this->joins)) {
             $sql .= ' ' . implode(' ', $this->joins);

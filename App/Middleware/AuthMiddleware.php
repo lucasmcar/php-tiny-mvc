@@ -1,8 +1,8 @@
 <?php
 namespace App\Middleware;
 
-use App\Core\Security\Jwt\JwtHandler;
-use App\Core\Security\Csrf;
+use Core\Security\Jwt\JwtHandler;
+use Core\Security\Csrf;
 
 class AuthMiddleware
 {
@@ -18,7 +18,7 @@ class AuthMiddleware
 
         if (!$jwt) {
             http_response_code(401);
-            header('Location: /admin/login');
+            header('Location: /');
             exit;
         }
 
@@ -29,7 +29,7 @@ class AuthMiddleware
             echo "Unauthorized - Invalid or expired token";
             // Opcional: Limpa a sessão se o token expirar
             unset($_SESSION['jwt']);
-            header('Location: /admin/login');
+            header('Location: /');
         }
 
         // Adiciona os dados do usuário ao request

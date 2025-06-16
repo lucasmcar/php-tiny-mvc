@@ -5,7 +5,7 @@ namespace App\Controller;
 use App\Helper\InputFilterHelper;
 use App\Model\Depoimento;
 use App\Repository\DepoimentoRepository;
-use App\Core\View\View;
+use Core\View\View;
 
 class DepoimentoController
 {
@@ -71,10 +71,10 @@ class DepoimentoController
             'totalDepoimentos' => $totalDepoimentos
         ];
         
-        $styles = ['/assets/css/depoimentos.css'];
+        $styles = ['/assets/css/depoimentos.min.css'];
         $scripts = [
-            '/assets/js/depoimento.js',
-            'assets/js/main-admin.js'
+            '/assets/js/depoimento.min.js',
+            'assets/js/main-admin.min.js'
         ];
 
         return new View('admin/depoimentos', $data, $styles, $scripts, 'admin-layout');
@@ -104,8 +104,8 @@ class DepoimentoController
         $notificarAdmin = false; // Simulação (poderia vir de BD)
         $emailAdmin = ''; // Simulação (poderia vir de BD)
 
-        $styles = ['/assets/css/gerenciar-depoimentos.css'];
-        $scripts = ['/assets/js/gerenciar-depoimentos.js', '/assets/js/main-admin.js'];
+        $styles = ['/assets/css/gerenciar-depoimentos.min.css'];
+        $scripts = ['/assets/js/gerenciar-depoimentos.min.js', '/assets/js/main-admin.min.js'];
 
      
         return new View('admin/gerenciar-depoimentos', [

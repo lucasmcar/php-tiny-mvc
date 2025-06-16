@@ -4,11 +4,12 @@ namespace App\Controller;
 
 use Core\View\View;
 use App\Helper\InputFilterHelper;
-use App\Model\User;
 use Core\Security\Jwt\JwtHandler;
 use Core\Security\Csrf;
+use App\Helper\JsonHelper;
+use App\Repository\UsuarioRepository;
 
-class UserController
+class UsuarioController
 {
     public function login()
     {
@@ -17,10 +18,10 @@ class UserController
         ];
 
         $styles = [
-            '/assets/css/admin/login.css'
+            '/assets/css/admin/login.min.css'
         ];
         $scripts = [
-            '/assets/js/main-admin.js'
+            '/assets/js/main-admin.min.js'
         ];
 
 
@@ -29,42 +30,45 @@ class UserController
 
     public function registrar()
     {
-        $data = [
-            'title' => 'Registrar'
-        ];
+        try {
+            $data = json_decode(file_get_contents('php://input'), true) ?? [];
 
-        $styles = [
-            '/assets/css/cria_conta.css'
-        ];
-        $scripts = [
-            '/assets/js/cria_conta.js'
-        ];
+            if (!Csrf::verifyToken($data['_csrf_token'])) {
+                return $this->jsonResponse([
+                    'success' => false,
+                    'message' => 'Token CSRF inválido.',
+                    'redirect' => '/login' // Sugere redirecionamento ao frontend
+                ], 403);
+            }
 
-        return new View(view: 'admin/cria_conta', vars: $data, styles: $styles, scripts: $scripts, layout: 'admin-layout');
+            $usuarioRepository = new UsuarioRepository();
+
+            $usuarioRepository->create([
+                'nome' => $data['nome'],
+                'usuario' => '@' . $data['usuario'],
+                'email' => $data['email'],
+                'senha' => password_hash($data['senha'], PASSWORD_BCRYPT),
+                'tipo' => $data['tipo'],
+            ]);
+
+            return $this->jsonResponse([
+                'success' => true,
+                'message' => 'Usuário cadastrado sucesso!',
+                'redirect' => '/cadastro'
+            ]);
+        } catch (\Exception $e) {
+            return $this->jsonResponse([
+                'success' => false,
+                'message' => 'Não foi possível cadastrar!',
+                'data' => [
+                    'erro' => $e->getMessage()
+                ]
+            ], 400);
+        }
     }
 
-    public function criarUsuario()
-    {
-        $data = InputFilterHelper::filterInputs(INPUT_POST, [
-            'nome',
-            'email',
-            'senha'
-        ]);
-    }
 
-    public function insertData()
-    {
-        $usuario = new User();
-
-        $usuario->create([
-            'nome' => 'Teste',
-            'email' => 'teste@teste.com.br',
-            'senha' => password_hash('123456', PASSWORD_BCRYPT),
-            'usuario' => 'teste',
-        ]);
-    }
-
-    public function signIn()
+    /*public function signIn()
     {
         $data = InputFilterHelper::filterInputs(INPUT_POST, [
             'email',
@@ -77,8 +81,9 @@ class UserController
             return;
         }
 
-        $user = new User();
-        $email = $user->findForSign($data['email']);
+        $userRepository = new UserRepository();
+        $email = $userRepository->findForSign($data['email']);
+        
 
 
         if ($email && password_verify($data['senha'], $email[0]['senha'])) {
@@ -98,17 +103,18 @@ class UserController
             if (!session_id()) {
                 session_start();
             }
+            
             $_SESSION['jwt'] = $jwt; // Armazena o token na sessão
             $_SESSION['jwt_exp'] = $payload['exp']; // Armazena a expiração do token na sessão
-
-            $user->updateLastLogin($email[0]['id'], date('Y-m-d H:i:s'));
+            $_SESSION['foto'] = $email[0]['foto'];
+            $userRepository->updateLastLogin($email[0]['id'], date('Y-m-d H:i:s'));
 
             // Redireciona para /admin/home
             header('Location: /admin/home');
         } else {
             header('location: /admin/login');
         }
-    }
+    }*/
 
     public function logout()
     {
@@ -119,45 +125,30 @@ class UserController
             session_start();
         }
 
-        // Verifica o CSRF token
-        /*$data = json_decode(file_get_contents('php://input'), true);
-        $csrfToken = $data['_csrf_token'] ?? null;
-        if (!Csrf::verifyToken($csrfToken)) {
-            http_response_code(403);
-            echo json_encode(['success' => false, 'message' => 'Token CSRF inválido']);
-            ob_end_flush();
-            return;
-        }*/
-
-        // Determina o método da requisição
-        $requestMethod = $_SERVER['REQUEST_METHOD'];
+        // Verifica se é uma requisição AJAX
+        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 
         // Obtém o CSRF token dependendo do método
+        $requestMethod = $_SERVER['REQUEST_METHOD'];
         $csrfToken = null;
         if ($requestMethod === 'POST') {
-            // Para requisições POST (contador regressivo), o token vem no corpo JSON
             $data = json_decode(file_get_contents('php://input'), true);
             $csrfToken = $data['_csrf_token'] ?? null;
         } else {
-            // Para requisições GET (sidebar), o token pode vir como parâmetro de query ou cabeçalho
             $csrfToken = $_GET['_csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
         }
 
         // Valida o CSRF token
         if (!$csrfToken || !Csrf::verifyToken($csrfToken)) {
-            if ($requestMethod === 'POST') {
-                // Resposta JSON para o contador regressivo
-                header('Content-Type: application/json');
+            $response = ['success' => false, 'message' => 'Token CSRF inválido'];
+            if ($isAjax) {
                 http_response_code(403);
-                echo json_encode(['success' => false, 'message' => 'Token CSRF inválido']);
-                ob_end_flush();
-                return;
+                echo json_encode($response);
             } else {
-                // Redireciona com erro para o sidebar
                 header('Location: /admin/login?error=csrf_invalid');
-                ob_end_flush();
-                exit;
             }
+            ob_end_flush();
+            exit;
         }
 
         // Limpa todas as variáveis de sessão relacionadas
@@ -186,25 +177,17 @@ class UserController
             );
         }
 
-        // Responde de acordo com o método da requisição
-        if ($requestMethod === 'POST') {
-            // Resposta JSON para o contador regressivo
-            header('Content-Type: application/json');
+        // Responde de acordo com o método e tipo de requisição
+        $response = ['success' => true, 'message' => 'Logout realizado com sucesso'];
+        if ($isAjax) {
             ob_end_clean();
-            echo json_encode(['success' => true, 'message' => 'Logout realizado com sucesso']);
+            echo json_encode($response);
         } else {
-            // Redireciona para o sidebar
             ob_end_clean();
             header('Location: /admin/login');
-            exit;
         }
-        /*if($_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest'){
-            header('location: admin/login');
-            exit;
-        }
-
-        ob_end_clean();
-        echo json_encode(['success' => true, 'message' => 'Logout realizado com sucesso']);*/
+        ob_end_flush();
+        exit;
     }
 
     public function logoutBySidebar()
@@ -223,6 +206,14 @@ class UserController
         // Redireciona para a página de login
 
         header('Location: /admin/login');
+        exit;
+    }
+
+    private function jsonResponse($data, $statusCode = 200)
+    {
+        header('Content-Type: application/json');
+        http_response_code($statusCode);
+        echo  JsonHelper::toJson($data);
         exit;
     }
 }

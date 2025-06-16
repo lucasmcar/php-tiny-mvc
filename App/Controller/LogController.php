@@ -1,7 +1,7 @@
 <?php
 namespace App\Controller;
 
-use App\Core\View\View;
+use Core\View\View;
 use Dompdf\Dompdf;
 use App\Model\Log;
 
@@ -20,11 +20,11 @@ class LogController
         ];
 
         $styles = [
-            '/assets/css/admin/logs.css'
+            '/assets/css/admin/logs.min.css'
         ];
 
         $scripts = [
-            '/assets/js/logs.js'
+            '/assets/js/logs.min.js'
         ];
 
         return new View(view: 'admin/logs', vars: $data, styles: $styles, scripts: $scripts, layout: 'admin-layout');
@@ -56,7 +56,7 @@ class LogController
         header('Content-Type: application/json');
 
         // Verificar autenticação (se aplicável)
-        if (!isset($_SESSION['jwt']) || !\App\Core\Security\Jwt\JwtHandler::validateToken($_SESSION['jwt'])) {
+        if (!isset($_SESSION['jwt']) || !\Core\Security\Jwt\JwtHandler::validateToken($_SESSION['jwt'])) {
             echo json_encode(['error' => 'Não autenticado']);
             http_response_code(401);
             exit;

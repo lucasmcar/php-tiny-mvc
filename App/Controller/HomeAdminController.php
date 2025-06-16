@@ -2,9 +2,11 @@
 
 namespace App\Controller;
 
-use App\Core\View\View;
+use Core\View\View;
 use App\Model\User;
+use App\Model\Administrador;
 use App\Repository\DepoimentoRepository;
+use Core\Security\Jwt\JwtHandler;
 
 class HomeAdminController
 {
@@ -16,10 +18,23 @@ class HomeAdminController
             exit;
         }
 
+        $data = [];
+        if (session_id()) {
+            $data = JwtHandler::validateToken($_SESSION['jwt']);
+        }
+
+        $user = new User();
+        
+        $userResult = $user->findForSign($data['email']);
+
+        $user= new USer();
+
+        $result = $user->where('criado_por','=', $userResult[0]['id'])->get();
+
 
         $data = [
             'title' => 'Administração',
-            'totalUsers' => 2,
+            'totalUsers' => (count($result) > 0 ? count($result) : 0),
             'totalDepoimentos' => 3,
             'totalPosts' => 4,
             'totalEventos' => 10,
@@ -28,10 +43,10 @@ class HomeAdminController
         ];
 
         $styles = [
-            '/assets/css/main-admin.css'
+            '/assets/css/main-admin.min.css'
         ];
         $scripts =[
-            'assets/js/main-admin.js'
+            'assets/js/main-admin.min.js'
         ];
 
         return new View('admin/home', $data, $styles, $scripts, 'admin-layout');
@@ -48,7 +63,7 @@ class HomeAdminController
         ];
 
         $styles = [
-            '/assets/css/main.css'
+            '/assets/css/main.min.css'
         ];
         $scripts =[];
 
@@ -64,10 +79,10 @@ class HomeAdminController
     {
         
         $styles = [
-            '/assets/css/servicos.css'
+            '/assets/css/servicos.min.css'
         ];
         $scripts =[
-            '/assets/js/servicos.js'
+            '/assets/js/servicos.min.js'
         ];
         $data = [
             'title' => 'Todos os Serviços',

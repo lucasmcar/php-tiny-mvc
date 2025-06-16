@@ -15,8 +15,8 @@ class DB implements IConnection
 
     public function __construct()
     {
-        $this->user = $_ENV['USER'] ?? 'default_user';
-        $this->password = $_ENV['PASS'] ?? 'default_pass';
+        $this->user = $_ENV['USER'] ?? 'root';
+        $this->password = $_ENV['PASS'] ?? 'root';
         $this->host = $_ENV['HOST'] ?? 'localhost';
         $this->db = $_ENV['DATABASE'] ?? 'default_db';
         $this->instance = $this->getConnection();
@@ -25,7 +25,7 @@ class DB implements IConnection
     public function getConnection() : PDO
     {
         try {
-            $this->instance = new PDO("mysql:host=$this->host;dbname=$this->db", $this->user, $this->password);
+            $this->instance = new PDO("mysql:host=$this->host;dbname=$this->db;charset=utf8mb4", $this->user, $this->password);
             $this->instance->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             return $this->instance;
         } catch (\PDOException $ex) {

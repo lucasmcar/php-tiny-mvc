@@ -2,13 +2,13 @@
 
 namespace App\Controller;
 
-use App\Core\View\View;
+use Core\View\View;
 use App\Model\Edital;
 use App\Model\Log;
 
-use App\Core\Security\Jwt\JwtHandler;
+use Core\Security\Jwt\JwtHandler;
 use App\Helper\InputFilterHelper;
-use App\Core\Security\Csrf;
+use Core\Security\Csrf;
 
 class EditalController
 {
@@ -43,11 +43,11 @@ class EditalController
 
         $styles = [
 
-            '/assets/css/admin/edital.css'
+            '/assets/css/admin/edital.min.css'
         ];
         $scripts = [
-            '/assets/js/main-admin.js',
-            '/assets/js/edital.js'
+            '/assets/js/main-admin.min.js',
+            '/assets/js/edital.min.js'
         ];
         return new View(view: 'admin/edital', vars: $data, styles: $styles, scripts: $scripts, layout: 'admin-layout');
     }

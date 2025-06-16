@@ -113,7 +113,6 @@ class Router  implements IRouter
             $routeObj = $routeEntry['route'];
             $routeDomain = $routeObj->getDomain();
 
-            
             // Se existe um domínio definido, precisa bater com o domínio atual
             if ($routeDomain !== null && $routeDomain !== $currentDomain) {
                 continue;

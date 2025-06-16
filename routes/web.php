@@ -3,6 +3,7 @@
 use App\Middleware\AuthMiddleware;
 
 $router->get('/', 'ExampleController', 'index');
+$router->get('/admin', 'ExampleController', 'admin');
 
 
 $router->notFound(function(){

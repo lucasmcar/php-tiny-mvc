@@ -230,12 +230,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/lucasmcar/tiny-core-lib.git",
-                "reference": "0a7bc0ad626fe27a19f8644167fe6c433f82af94"
+                "reference": "c15e7616e6811e90ddc01b7b03bd097b84d70153"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lucasmcar/tiny-core-lib/zipball/0a7bc0ad626fe27a19f8644167fe6c433f82af94",
-                "reference": "0a7bc0ad626fe27a19f8644167fe6c433f82af94",
+                "url": "https://api.github.com/repos/lucasmcar/tiny-core-lib/zipball/c15e7616e6811e90ddc01b7b03bd097b84d70153",
+                "reference": "c15e7616e6811e90ddc01b7b03bd097b84d70153",
                 "shasum": ""
             },
             "require-dev": {
@@ -246,7 +246,10 @@
             "autoload": {
                 "psr-4": {
                     "Core\\": "Source/Core/"
-                }
+                },
+                "files": [
+                    "Source/Core/view_base_path.php"
+                ]
             },
             "autoload-dev": {
                 "psr-4": {
@@ -258,7 +261,7 @@
                 "source": "https://github.com/lucasmcar/tiny-core-lib/tree/master",
                 "issues": "https://github.com/lucasmcar/tiny-core-lib/issues"
             },
-            "time": "2025-06-16T20:29:44+00:00"
+            "time": "2025-06-16T21:48:28+00:00"
         },
         {
             "name": "masterminds/html5",

@@ -1,5 +1,7 @@
 <?php
+define('PROJECT_VIEW_PATH', dirname(__DIR__) . '/resources/views');
 require_once __DIR__ . '/../vendor/autoload.php';
+
 
 use App\Router\Route\Route;
 use App\Router\Router;

@@ -9,7 +9,7 @@
     </main>
 
     <footer>
-      <p>Feito com ❤️ por desenvolvedores para desenvolvedores. &copy {% year %}</p>
+      <p>Feito de desenvolvedor para desenvolvedores. &copy {% year %}</p>
     </footer>
     @csrf
   </div>

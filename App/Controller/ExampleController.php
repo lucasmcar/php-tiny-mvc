@@ -53,7 +53,7 @@ class ExampleController
         ];
 
         /**/
-        return new View(view:'admin/index', vars: $data, styles: $styles, scripts: $scripts, layout: 'admin');
+        return new View(view:'admin/index', vars: $data, styles: $styles, scripts: $scripts, layout: 'admin/admin');
     }
 
 }

@@ -12,7 +12,7 @@ I'm very happy to annunce one of my [reworked framework](https://github.com/luca
 This simple framework mvc, i was learn to develop from an Udemy course in 2020, learning the basics concepts of a mvc framework structure, with routes, controllers, models and views. 
 Since, his development was frozen
 
-But, in this year, i decided rework and restructure it in a laravel based framework.
+But, in this year, 2024, i decided rework and restructure it in a laravel based framework.
 This framework was designed for the development of small and medium applications.
 
 For now it is not available for use.
@@ -20,19 +20,14 @@ it is not recommended. Just for testing as it can and I know that there are stil
 
 So, this is the biggest personal challenge. I love programming, I love PHP. And I hope to see this framework being used in many systems too
 
-# 🚀 TinyMVC - Um Micro Framework PHP Minimalista
-
-
-
-Um micro framework PHP inspirado no Laravel, com foco em simplicidade, arquitetura limpa e ideal para aplicações REST ou microserviços.
-
 ---
 
-## 📦 Instalação
+## How to install
 
 ```bash
 git clone https://github.com/lucasmcar/php-tiny-mvc.git
 cd php-tiny-mvc
 composer install
+```
 
 

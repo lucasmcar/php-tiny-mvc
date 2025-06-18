@@ -2,23 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Connection\DB;
 use PDO;
 
-class RollbackCommand
+class RollbackCommand extends DB
 {
     protected string $migrationPath = __DIR__ . '/../../../database/migrations';
-    private $user;
-    private $db;
-    private $host;
-    private $password;
-
-    public function __construct()
-    {
-        $this->user = $_ENV['USER'] ?? 'root';
-        $this->password = $_ENV['PASS'] ?? '';
-        $this->host = $_ENV['HOST'] ?? 'localhost';
-        $this->db = $_ENV['DATABASE'] ?? 'default_db';
-    }
 
     public function handle(array $args): void
     {
@@ -49,8 +38,4 @@ class RollbackCommand
         echo "Rollback concluído.\n";
     }
 
-    private function getConnection(): PDO
-    {
-        return new PDO("mysql:host=$this->host;dbname=$this->db;charset=utf8mb4", $this->user, $this->password);
-    }
 }

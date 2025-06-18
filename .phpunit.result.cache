@@ -1,0 +1,1 @@
+{"version":1,"defects":{"ModelTest::testBasicReturn":7},"times":{"ExampleTest::testBasicAssertion":0.214,"ModelTest::testBasicReturn":0.18,"ModelTest::testCanFindUser":0.188}}

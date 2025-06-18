@@ -4,7 +4,7 @@ namespace App\Connection;
 
 use App\Connection\DB;
 
-class Builder 
+class Builder
 {
     private $db;
     private $table;
@@ -12,10 +12,11 @@ class Builder
     private $wheres   = [];
     private $bindings = [];
     private $inserts  = [];
+    private $joins = [];
     private $orderBy  = '';
     private $limit    = '';
     private $offset   = '';
-    
+
     public function __construct(DB $db)
     {
         $this->db = $db;
@@ -35,8 +36,9 @@ class Builder
 
     public function where(string $field, string $operator, $value)
     {
-        $this->wheres[] = "$field $operator :$field";
-        $this->bindings[$field] = $value;
+        $param = $field . count($this->wheres); // exemplo: id0, id1
+        $this->wheres[] = "$field $operator :$param";
+        $this->bindings[$param] = $value;
         return $this;
     }
 
@@ -58,17 +60,25 @@ class Builder
         return $this;
     }
 
-    public function like()
+    public function like(string $field, string $value)
     {
-
+        $param = $field . count($this->wheres);
+        $this->wheres[] = "$field LIKE :$param";
+        $this->bindings[$param] = "%$value%";
+        return $this;
     }
+
 
     private function buildSelectQuery()
     {
         $sql = 'SELECT ';
         $sql .= $this->selects ? implode(', ', $this->selects) : '*';
         $sql .= ' FROM ' . $this->table;
-        
+
+        if ($this->joins) {
+            $sql .= ' ' . implode(' ', $this->joins);
+        }
+
         if ($this->wheres) {
             $sql .= ' WHERE ' . implode(' AND ', $this->wheres);
         }
@@ -92,7 +102,7 @@ class Builder
     {
         $sql = $this->buildSelectQuery();
         $stmt = $this->db->prepare($sql);
-        
+
         foreach ($this->bindings as $param => $value) {
             $this->db->bind(":$param", $value);
         }
@@ -112,7 +122,7 @@ class Builder
     {
         $sql = $this->buildInsertQuery($data);
         $stmt = $this->db->prepare($sql);
-        
+
         foreach ($data as $param => $value) {
             $this->db->bind(":$param", $value);
         }
@@ -131,12 +141,61 @@ class Builder
 
     public function destroy()
     {
+        $sql = "DELETE FROM {$this->table}";
 
+        if ($this->wheres) {
+            $sql .= ' WHERE ' . implode(' AND ', $this->wheres);
+        } else {
+            throw new \Exception("DELETE sem WHERE não permitido por segurança.");
+        }
+
+        $stmt = $this->db->prepare($sql);
+
+        foreach ($this->bindings as $param => $value) {
+            $this->db->bind(":$param", $value);
+        }
+
+        return $stmt->execute();
     }
 
-    public function update()
+    public function join(string $table, string $firstField, string $operator, string $secondField, string $type = 'INNER')
     {
-
+        $this->joins[] = "$type JOIN $table ON $firstField $operator $secondField";
+        return $this;
     }
 
+
+    public function update(array $data)
+    {
+        $set = [];
+        foreach ($data as $key => $value) {
+            $param = "upd_$key";
+            $set[] = "$key = :$param";
+            $this->bindings[$param] = $value;
+        }
+
+        $sql = "UPDATE {$this->table} SET " . implode(', ', $set);
+
+        if ($this->wheres) {
+            $sql .= ' WHERE ' . implode(' AND ', $this->wheres);
+        }
+
+        $stmt = $this->db->prepare($sql);
+
+        foreach ($this->bindings as $param => $value) {
+            $this->db->bind(":$param", $value);
+        }
+
+        return $stmt->execute();
+    }
+
+    public function leftJoin(string $table, string $first, string $operator, string $second)
+    {
+        return $this->join($table, $first, $operator, $second, 'LEFT');
+    }
+
+    public function rightJoin(string $table, string $first, string $operator, string $second)
+    {
+        return $this->join($table, $first, $operator, $second, 'RIGHT');
+    }
 }

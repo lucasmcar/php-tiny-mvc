@@ -17,3 +17,20 @@ it is not recommended. Just for testing as it can and I know that there are stil
 
 So, this is the biggest personal challenge. I love programming, I love PHP. And I hope to see this framework being used in many systems too
 
+# 🚀 TinyMVC - Um Micro Framework PHP Minimalista
+
+![Build](https://github.com/lucasmcar/php-tiny-mvc/actions/workflows/phpunit.yml/badge.svg)
+[![codecov](https://codecov.io/gh/lucasmcar/php-tiny-mvc/branch/master/graph/badge.svg?token=SEU_TOKEN)](https://codecov.io/gh/lucasmcar/php-tiny-mvc)
+
+Um micro framework PHP inspirado no Laravel, com foco em simplicidade, arquitetura limpa e ideal para aplicações REST ou microserviços.
+
+---
+
+## 📦 Instalação
+
+```bash
+git clone https://github.com/lucasmcar/php-tiny-mvc.git
+cd php-tiny-mvc
+composer install
+
+

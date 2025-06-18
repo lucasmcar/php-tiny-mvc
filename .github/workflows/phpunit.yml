@@ -21,6 +21,9 @@ jobs:
         extensions: mbstring, pdo, sqlite, pdo_sqlite
         coverage: xdebug
 
+    - name: Copia o .env de exemplo
+      run: cp .env.example .env
+
     - name: Install dependencies
       run: composer install
 

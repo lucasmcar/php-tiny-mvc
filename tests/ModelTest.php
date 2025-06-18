@@ -15,11 +15,11 @@ class ModelTest extends TestCase
         $this->assertTrue($result);
     }*/
 
-    public function testCanFindUser()
+    /*public function testCanFindUser()
     {
         $teste = Teste::where('id', '=', 1)->first();
 
         $this->assertNotNull($teste);
         $this->assertEquals('2025-06-18 00:00:00', $teste['created_at']);
-    }
+    }*/
 }

@@ -1,5 +1,8 @@
 # Tiny MVC PHP Framework
 
+![Build](https://github.com/lucasmcar/php-tiny-mvc/actions/workflows/phpunit.yml/badge.svg)
+[![codecov](https://codecov.io/gh/lucasmcar/php-tiny-mvc/branch/master/graph/badge.svg?token=CODECOV_TOKEN)](https://codecov.io/gh/lucasmcar/php-tiny-mvc)
+
 Hello guys!!
 
 I'm very happy to annunce one of my [reworked framework](https://github.com/lucasmcar/dmf-twitterclone-wcss). where i developed a twitter clone application.
@@ -19,8 +22,7 @@ So, this is the biggest personal challenge. I love programming, I love PHP. And 
 
 # 🚀 TinyMVC - Um Micro Framework PHP Minimalista
 
-![Build](https://github.com/lucasmcar/php-tiny-mvc/actions/workflows/phpunit.yml/badge.svg)
-[![codecov](https://codecov.io/gh/lucasmcar/php-tiny-mvc/branch/master/graph/badge.svg?token=SEU_TOKEN)](https://codecov.io/gh/lucasmcar/php-tiny-mvc)
+
 
 Um micro framework PHP inspirado no Laravel, com foco em simplicidade, arquitetura limpa e ideal para aplicações REST ou microserviços.
 
